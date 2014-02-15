@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+
+var extract = require('extract-flags')
+var resolve = require('path').resolve
+var deviant = require('./')
+
+var options = extract(process.argv, {
+    t: String
+  , transform: String
+})
+
+if (process.argv.length < 3) {
+  return console.error(
+    require('fs').readFileSync(
+      __dirname + '/usage.txt'
+    , 'utf8')
+  ), process.exit(1)
+}
+
+var transforms = []
+  .concat(options.t)
+  .concat(options.transform)
+
+deviant(transforms, function() {
+  require(resolve(process.argv[2]))
+})

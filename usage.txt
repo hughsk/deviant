@@ -1,0 +1,8 @@
+
+Usage:
+  deviant file.js -t <transform>
+
+Use the -t or --transform flags to specify one or
+more transform streams. Outside of these flags, the
+remaining arguments will be passed on to file.js
+as if it were being run directly from node.
