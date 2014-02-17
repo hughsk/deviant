@@ -1,7 +1,7 @@
 {
   "name": "deviant",
   "description": "Override node's builtin require to use browserify transform streams directly in node",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "index.js",
   "dependencies": {
     "debug": "~0.7.4",
