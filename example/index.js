@@ -8,12 +8,11 @@ console.log(
 )
 
 var deviant = require('../')
-var transforms = [
+
+deviant([
     'coffeeify'
   , 'installify'
-]
+])
 
-deviant(transforms, function() {
-  require('./index.coffee')
-})
+require('./index.coffee')
 

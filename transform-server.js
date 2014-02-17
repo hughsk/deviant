@@ -11,8 +11,9 @@ var fs      = require('fs')
 var transforms = []
 var handle     = {}
 
-var port    = 8000
-var retries = 100
+var portFile = process.argv[2]
+var port     = 1280
+var retries  = 100
 var server
 
 function connection(client) {
@@ -26,6 +27,15 @@ function connection(client) {
     })
 }
 
+// We can't guarantee that port 1280
+// won't ever be taken, especially if
+// there are multiple instances of deviant
+// running.
+//
+// This repeatedly attempts to listen to ports,
+// starting at 1280 and then slowly increasing
+// until finding one that is free, or failing
+// at 100 retries.
 listen()
 function listen() {
   debug('trying port %s', port)
@@ -37,8 +47,7 @@ function listen() {
     throw err
   }).on('listening', function() {
     debug('got port %s', port)
-    process.stdout.write(String(port))
-    process.stderr.write('\n')
+    fs.writeFile(portFile, String(port))
   })
 }
 

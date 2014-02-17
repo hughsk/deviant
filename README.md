@@ -35,20 +35,18 @@ If you prefer to load deviant directly, you just have to run the following
 code *before* making any other calls to require:
 
 ``` javascript
-var deviant = require('deviant')
-var transforms = [
+// Specify the transforms you want to use
+// here, if any
+require('deviant')([
     'es6ify'
   , 'sweetify'
   , 'installify'
-]
+])
 
-deviant(transforms, function() {
-  // wait for deviant to finish
-  // hooking into node's require,
-  // then load up the rest of your
-  // app
-  require('./app')
-})
+// Now you can make require calls
+// as usual, but with transforms
+// enabled
+require('./app')
 ```
 
 ## How does it work? ##

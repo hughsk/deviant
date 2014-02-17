@@ -1,15 +1,19 @@
-var debug    = require('debug')('transmogrified')
+var portFile = require('quick-tmp')('deviant')()
+var debug    = require('debug')('deviant')
 var spawn    = require('child_process').spawn
 var exec     = require('execSync').exec
 var Module   = require('module')
 var findup   = require('findup')
 var which    = require('which')
 var path     = require('path')
-
+var fs       = require('fs')
 var tClient  = require.resolve('./transform-client')
 var tServer  = require.resolve('./transform-server')
+
+fs.writeFileSync(portFile, '')
+
 var node     = which.sync('node')
-var server   = spawn(node, [tServer])
+var server   = spawn(node, [tServer, portFile])
 
 var _compile = Module.prototype._compile
 var root     = module.parent ? module.parent.filename : __filename
@@ -20,15 +24,6 @@ var port
 var defaultTransforms = []
 
 module.exports = initialLoad
-
-server.stderr.pipe(process.stderr)
-server.stdout.once('data', function(_port) {
-  debug('informed of port: %s', _port)
-  port  = String(_port)
-  server.emit('ready')
-  server.removeAllListeners('ready')
-  ready = true
-})
 
 Module.prototype._compile = deviantTransform
 
@@ -48,8 +43,8 @@ function deviantTransform(content, filename) {
     var nearest = findup.sync(path.dirname(filename), 'package.json')
     var pkg = require(path.join(nearest, 'package.json'))
     var transforms = pkg && (
-      pkg['nodify'] &&
-      pkg['nodify']['transform']
+      pkg['deviant'] &&
+      pkg['deviant']['transform']
     ) || (
       pkg['browserify'] &&
       pkg['browserify']['transform']
@@ -101,13 +96,29 @@ function addTransforms(arr) {
   ;[].push.apply(defaultTransforms, arr)
 }
 
-function initialLoad(arr, start) {
+function initialLoad(arr) {
   if (typeof arr === 'function') {
     start = arr
     arr = []
   }
 
   addTransforms(arr)
-  if (ready) return start()
-  server.on('ready', start)
+
+  // hack to find out the port of the
+  // TCP transform server synchronously:
+  // the server is passed the "portFile"
+  // as an argument, and will update that
+  // file with the port number when it's
+  // ready.
+  //
+  // Here, we just poll the file synchronously
+  // until we can read out the port, which
+  // is usally pretty quickly
+  do {
+    port = fs.readFileSync(portFile)
+  } while (!port.length)
+  fs.unlinkSync(portFile)
+
+  port = String(Number(String(port)))
+  debug('informed of port: %s', port)
 }
