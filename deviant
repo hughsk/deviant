@@ -21,6 +21,5 @@ var transforms = []
   .concat(options.t)
   .concat(options.transform)
 
-deviant(transforms, function() {
-  require(resolve(process.argv[2]))
-})
+deviant(transforms)
+require(resolve(process.argv[2]))

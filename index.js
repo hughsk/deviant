@@ -114,6 +114,7 @@ function initialLoad(arr) {
   // Here, we just poll the file synchronously
   // until we can read out the port, which
   // is usally pretty quickly
+  if (port) return
   do {
     port = fs.readFileSync(portFile)
   } while (!port.length)
